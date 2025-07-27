@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ozzee AI Agent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            background: #ffffff;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(246, 246, 248, 0.8);
+            backdrop-filter: blur(50px);
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 10px;
+        }
+
+        .app-logo h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-left: 10px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin: 4px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #1d1d1f;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background: rgba(0, 122, 255, 0.1);
+        }
+
+        .nav-item.active {
+            background: rgba(0, 122, 255, 0.15);
+            color: #007AFF;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+
+        /* Chat Interface */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .chat-header {
+            padding: 20px 0;
+            border-bottom: 1px solid #e5e5e7;
+            margin-bottom: 20px;
+        }
+
+        .chat-header h2 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 16px 20px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .message.assistant .message-content {
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .message.user .message-content {
+            background: #007AFF;
+            color: white;
+        }
+
+        .chat-input-container {
+            padding: 20px 0;
+            border-top: 1px solid #e5e5e7;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: #f5f5f7;
+            border-radius: 24px;
+            padding: 8px 8px 8px 20px;
+            transition: all 0.2s ease;
+        }
+
+        .chat-input-wrapper:focus-within {
+            background: #e8e8ed;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: none;
+            background: none;
+            outline: none;
+            font-size: 15px;
+            color: #1d1d1f;
+            padding: 8px 0;
+        }
+
+        .chat-input::placeholder {
+            color: #86868b;
+        }
+
+        .send-button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #007AFF;
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .send-button:hover {
+            background: #0051D5;
+            transform: scale(1.05);
+        }
+
+        .send-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Hidden Sections */
+        .section {
+            display: none;
+            flex: 1;
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-header {
+            margin-bottom: 30px;
+        }
+
+        .section-header h2 {
+            font-size: 32px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+        }
+
+        .section-header p {
+            font-size: 16px;
+            color: #86868b;
+        }
+
+        /* Cards */
+        .card {
+            background: #f5f5f7;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #86868b;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .button-primary {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .button-primary:hover {
+            background: #0051D5;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        }
+
+        /* Status indicators */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .status-badge.success {
+            background: rgba(52, 199, 89, 0.1);
+            color: #34C759;
+        }
+
+        .status-badge.pending {
+            background: rgba(255, 149, 0, 0.1);
+            color: #FF9500;
+        }
+
+        /* Loading animation */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #86868b;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.5;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="app-logo">
+                <div class="logo-icon">O</div>
+                <h1>Ozzee AI Agent</h1>
+            </div>
+            
+            <nav>
+                <a href="#" class="nav-item active" data-section="chat">
+                    <div class="nav-icon">💬</div>
+                    <span>AI Assistant</span>
+                </a>
+                <a href="#" class="nav-item" data-section="browser">
+                    <div class="nav-icon">🌐</div>
+                    <span>Naviga sul Browser</span>
+                </a>
+                <a href="#" class="nav-item" data-section="expenses">
+                    <div class="nav-icon">💰</div>
+                    <span>Spese</span>
+                </a>
+                <a href="#" class="nav-item" data-section="airbnb">
+                    <div class="nav-icon">🏠</div>
+                    <span>Rispondi Messaggi</span>
+                </a>
+                <a href="#" class="nav-item" data-section="propertyFinder">
+                    <div class="nav-icon">🏢</div>
+                    <span>Property Finder</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Chat Section -->
+            <div id="chat" class="chat-container">
+                <div class="chat-header">
+                    <h2>AI Assistant</h2>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message assistant">
+                        <div class="message-content">
+                            Ciao! Sono il tuo assistente AI per la gestione dei tuoi BNB a Dubai. Come posso aiutarti oggi?
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-container">
+                    <div class="chat-input-wrapper">
+                        <input type="text" class="chat-input" id="chatInput" placeholder="Scrivi un messaggio...">
+                        <button class="send-button" id="sendButton">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Browser Navigation Section -->
+            <div id="browser" class="section">
+                <div class="section-header">
+                    <h2>Navigazione Browser Automatica</h2>
+                    <p>Carica automaticamente i documenti dei clienti sulle piattaforme governative</p>
+                </div>
+
+                <div class="card">
+                    <h3>Documenti in Coda</h3>
+                    <div style="margin-top: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: white; border-radius: 8px; margin-bottom: 12px;">
+                            <div>
+                                <div style="font-weight: 500;">Passaporto - John Doe</div>
+                                <div style="font-size: 14px; color: #86868b;">Ricevuto da Airbnb • 10 minuti fa</div>
+                            </div>
+                            <span class="status-badge pending">In attesa</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: white; border-radius: 8px;">
+                            <div>
+                                <div style="font-weight: 500;">Visto - Maria Garcia</div>
+                                <div style="font-size: 14px; color: #86868b;">Caricato su GDRFA • 2 ore fa</div>
+                            </div>
+                            <span class="status-badge success">Completato</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Configurazione Piattaforme</h3>
+                    <div class="form-group">
+                        <label class="form-label">URL Piattaforma 1</label>
+                        <input type="text" class="form-input" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">URL Piattaforma 2</label>
+                        <input type="text" class="form-input" placeholder="https://...">
+                    </div>
+                    <button class="button-primary">Salva Configurazione</button>
+                </div>
+            </div>
+
+            <!-- Expenses Section -->
+            <div id="expenses" class="section">
+                <div class="section-header">
+                    <h2>Gestione Spese</h2>
+                    <p>Traccia tutte le spese per i tuoi 7 BNB</p>
+                </div>
+
+                <div class="card">
+                    <h3>Aggiungi Nuova Spesa</h3>
+                    <form id="expenseForm">
+                        <div class="form-group">
+                            <label class="form-label">Proprietà</label>
+                            <select class="form-input">
+                                <option>BNB 1 - Marina View</option>
+                                <option>BNB 2 - Downtown Loft</option>
+                                <option>BNB 3 - Beach House</option>
+                                <option>BNB 4 - City Center</option>
+                                <option>BNB 5 - Palm Residence</option>
+                                <option>BNB 6 - Business Bay</option>
+                                <option>BNB 7 - JBR Suite</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Categoria</label>
+                            <select class="form-input">
+                                <option>Pulizie</option>
+                                <option>Manutenzione</option>
+                                <option>Utilities</option>
+                                <option>Forniture</option>
+                                <option>Altro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Importo (AED)</label>
+                            <input type="number" class="form-input" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Descrizione</label>
+                            <input type="text" class="form-input" placeholder="Descrizione della spesa">
+                        </div>
+                        <button type="submit" class="button-primary">Aggiungi Spesa</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3>Riepilogo Mensile</h3>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px;">
+                        <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 28px; font-weight: 600; color: #007AFF;">12,450</div>
+                            <div style="font-size: 14px; color: #86868b;">AED Totale</div>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 28px; font-weight: 600; color: #34C759;">7</div>
+                            <div style="font-size: 14px; color: #86868b;">Proprietà</div>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 28px; font-weight: 600; color: #FF9500;">1,778</div>
+                            <div style="font-size: 14px; color: #86868b;">Media per BNB</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Airbnb Messages Section -->
+            <div id="airbnb" class="section">
+                <div class="section-header">
+                    <h2>Rispondi ai Messaggi Airbnb</h2>
+                    <p>Gestione automatica delle conversazioni con gli ospiti</p>
+                </div>
+
+                <div class="card">
+                    <h3>Messaggi in Attesa</h3>
+                    <div style="margin-top: 20px;">
+                        <div style="border: 1px solid #d2d2d7; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                <div>
+                                    <div style="font-weight: 500;">Sarah Johnson</div>
+                                    <div style="font-size: 14px; color: #86868b;">BNB 3 - Beach House • 5 min fa</div>
+                                </div>
+                                <button class="button-primary" style="padding: 8px 16px; font-size: 14px;">Rispondi</button>
+                            </div>
+                            <div style="font-size: 15px; color: #3c3c43;">
+                                "Hi, is early check-in possible? Our flight arrives at 10 AM..."
+                            </div>
+                        </div>
+                        
+                        <div style="border: 1px solid #d2d2d7; border-radius: 8px; padding: 16px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                <div>
+                                    <div style="font-weight: 500;">Ahmed Ali</div>
+                                    <div style="font-size: 14px; color: #86868b;">BNB 1 - Marina View • 1 ora fa</div>
+                                </div>
+                                <span class="status-badge success">Risposto</span>
+                            </div>
+                            <div style="font-size: 15px; color: #3c3c43;">
+                                "What's the WiFi password?"
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Template Risposte</h3>
+                    <div style="margin-top: 20px;">
+                        <button class="button-primary" style="margin-right: 8px; margin-bottom: 8px;">Check-in Info</button>
+                        <button class="button-primary" style="margin-right: 8px; margin-bottom: 8px;">WiFi Details</button>
+                        <button class="button-primary" style="margin-right: 8px; margin-bottom: 8px;">House Rules</button>
+                        <button class="button-primary" style="margin-bottom: 8px;">Local Tips</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PropertyFinder Section -->
+            <div id="propertyFinder" class="section">
+                <div class="section-header">
+                    <h2>Property Finder Automation</h2>
+                    <p>Ricerca automatica proprietà a Dubai Marina</p>
+                </div>
+
+                <div class="card">
+                    <h3>Ricerca Manuale</h3>
+                    <div style="margin-top: 20px;">
+                        <button id="startSearchButton" class="button-primary">
+                            Avvia Ricerca
+                        </button>
+                        <div id="searchStatus" style="margin-top: 10px; display: none;">
+                            <div class="status-badge pending">
+                                Ricerca in corso...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Ricerche Programmate</h3>
+                    <div class="form-group">
+                        <label class="form-label">Orario Ricerca Automatica</label>
+                        <input type="time" id="scheduleTime" class="form-input" value="09:00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="enableSchedule"> 
+                            Abilita ricerca automatica giornaliera
+                        </label>
+                    </div>
+                    <button id="saveScheduleButton" class="button-primary">
+                        Salva Configurazione
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h3>Report Generati</h3>
+                    <div id="reportsList" style="margin-top: 20px;">
+                        <!-- I report verranno inseriti qui dinamicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration Management
+        const CONFIG_KEY = 'ozzeeConfig';
+        let appConfig = {
+            openaiApiKey: '',
+            openaiModel: 'gpt-4',
+            assistantId: '', // Your custom assistant ID from OpenAI
+            automation: {
+                autoProcessDocuments: false,
+                autoReplyMessages: false,
+                replyDelay: 5000
+            }
+        };
+
+        // Load saved configuration
+        function loadConfig() {
+            const saved = localStorage.getItem(CONFIG_KEY);
+            if (saved) {
+                appConfig = { ...appConfig, ...JSON.parse(saved) };
+            }
+        }
+
+        // Save configuration
+        function saveConfig() {
+            localStorage.setItem(CONFIG_KEY, JSON.stringify(appConfig));
+            // If in Electron, also save to main process
+            if (window.electronAPI) {
+                window.electronAPI.saveConfig(appConfig);
+            }
+        }
+
+        // Initialize
+        loadConfig();
+
+        // Navigation
+        const navItems = document.querySelectorAll('.nav-item');
+        const sections = {
+            chat: document.getElementById('chat'),
+            browser: document.getElementById('browser'),
+            expenses: document.getElementById('expenses'),
+            airbnb: document.getElementById('airbnb'),
+            propertyFinder: document.getElementById('propertyFinder')
+        };
+
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Update active nav
+                navItems.forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                
+                // Show corresponding section
+                const sectionName = item.dataset.section;
+                
+                // Hide chat if not selected
+                if (sectionName !== 'chat') {
+                    sections.chat.style.display = 'none';
+                }
+                
+                // Show/hide sections
+                Object.keys(sections).forEach(key => {
+                    if (key === 'chat' && sectionName === 'chat') {
+                        sections[key].style.display = 'flex';
+                    } else if (key !== 'chat') {
+                        sections[key].classList.toggle('active', key === sectionName);
+                    }
+                });
+            });
+        });
+
+        // Chat functionality with OpenAI integration
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+        const chatMessages = document.getElementById('chatMessages');
+
+        // Conversation history for context
+        let conversationHistory = [
+            {
+                role: "system",
+                content: `Sei un assistente AI specializzato nella gestione di BNB a Dubai. 
+                         Puoi aiutare con: gestione documenti, risposte agli ospiti, tracciamento spese, 
+                         e automazione delle task. Rispondi sempre in italiano in modo professionale ma amichevole.`
+            }
+        ];
+
+        function addMessage(content, isUser = false, isError = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            if (isError) {
+                contentDiv.innerHTML = `<span class="error-message">🚫 ${content}</span>`;
+            } else {
+                contentDiv.textContent = content;
+            }
+            
+            // Aggiungi timestamp
+            const timestampDiv = document.createElement('div');
+            timestampDiv.className = 'message-timestamp';
+            timestampDiv.textContent = new Date().toLocaleTimeString();
+            
+            messageDiv.appendChild(contentDiv);
+            messageDiv.appendChild(timestampDiv);
+            chatMessages.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Aggiungi pulsante copia se non è un errore
+            if (!isError) {
+                const copyButton = document.createElement('button');
+                copyButton.className = 'copy-button';
+                copyButton.innerHTML = '📋';
+                copyButton.title = 'Copia messaggio';
+                copyButton.onclick = () => {
+                    navigator.clipboard.writeText(content)
+                        .then(() => {
+                            copyButton.innerHTML = '✓';
+                            setTimeout(() => copyButton.innerHTML = '📋', 2000);
+                        })
+                        .catch(err => console.error('Errore nella copia:', err));
+                };
+                messageDiv.appendChild(copyButton);
+            }
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message assistant';
+            typingDiv.id = 'typingIndicator';
+            
+            const indicatorDiv = document.createElement('div');
+            indicatorDiv.className = 'typing-indicator';
+            indicatorDiv.innerHTML = `
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            `;
+            
+            typingDiv.appendChild(indicatorDiv);
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        // Debounce function
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Send message with debounce
+        const debouncedSendMessage = debounce(async () => {
+            const message = chatInput.value.trim();
+            if (!message) return;
+            
+            // Disable input and button
+            chatInput.disabled = true;
+            sendButton.disabled = true;
+            
+            // Add user message
+            addMessage(message, true);
+            chatInput.value = '';
+            
+            // Add to conversation history
+            conversationHistory.push({ role: "user", content: message });
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            try {
+                // Call chat API
+                const response = await window.electronAPI.callChatRequest({
+                    message,
+                    conversationHistory: conversationHistory.slice(-10) // Limita a ultimi 10 messaggi
+                });
+                
+                removeTypingIndicator();
+                
+                if (response.success) {
+                    const aiMessage = response.data.content;
+                    addMessage(aiMessage);
+                    conversationHistory.push({ role: "assistant", content: aiMessage });
+                    
+                    // Controlla limite token
+                    const totalTokens = conversationHistory.reduce((acc, msg) => 
+                        acc + Math.ceil(msg.content.length / 4), 0);
+                    
+                    if (totalTokens > 3500) {
+                        addMessage("⚠️ La conversazione sta raggiungendo il limite di token. Considera di iniziare una nuova chat.", false, true);
+                    }
+                } else {
+                    addMessage(response.error, false, true);
+                }
+            } catch (error) {
+                removeTypingIndicator();
+                addMessage("Si è verificato un errore. Riprova più tardi.", false, true);
+                console.error('Chat error:', error);
+            } finally {
+                // Re-enable input and button
+                chatInput.disabled = false;
+                sendButton.disabled = false;
+                chatInput.focus();
+            }
+        }, 500); // 500ms debounce
+
+        // Clear conversation
+        function clearConversation() {
+            if (confirm('Sei sicuro di voler cancellare la conversazione?')) {
+                conversationHistory = [conversationHistory[0]]; // Mantieni solo il messaggio di sistema
+                chatMessages.innerHTML = '';
+                addMessage('Chat resettata. Come posso aiutarti?', false);
+            }
+        }
+
+        // Add clear button to chat header
+        const chatHeader = document.querySelector('.chat-header');
+        const clearButton = document.createElement('button');
+        clearButton.className = 'button-primary';
+        clearButton.style.marginLeft = 'auto';
+        clearButton.textContent = 'Nuova Chat';
+        clearButton.onclick = clearConversation;
+        chatHeader.style.display = 'flex';
+        chatHeader.style.alignItems = 'center';
+        chatHeader.appendChild(clearButton);
+
+        // Event listeners
+        sendButton.addEventListener('click', () => debouncedSendMessage());
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                debouncedSendMessage();
+            }
+        });
+
+        // Add some CSS for new elements
+        const style = document.createElement('style');
+        style.textContent = `
+            .error-message {
+                color: #ff3b30;
+            }
+            
+            .message-timestamp {
+                font-size: 12px;
+                color: #86868b;
+                margin-top: 4px;
+            }
+            
+            .copy-button {
+                position: absolute;
+                right: 8px;
+                top: 8px;
+                background: none;
+                border: none;
+                cursor: pointer;
+                opacity: 0;
+                transition: opacity 0.2s;
+            }
+            
+            .message:hover .copy-button {
+                opacity: 1;
+            }
+            
+            .message {
+                position: relative;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Settings Modal
+        function showSettingsModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: white; padding: 30px; border-radius: 12px; max-width: 500px; width: 90%;">
+                    <h3 style="margin-bottom: 20px;">Impostazioni API OpenAI</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">API Key OpenAI</label>
+                        <input type="password" id="apiKeyInput" class="form-input" 
+                               placeholder="sk-..." value="${appConfig.openaiApiKey || ''}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Modello</label>
+                        <select id="modelSelect" class="form-input">
+                            <option value="gpt-4" ${appConfig.openaiModel === 'gpt-4' ? 'selected' : ''}>GPT-4</option>
+                            <option value="gpt-4-turbo-preview" ${appConfig.openaiModel === 'gpt-4-turbo-preview' ? 'selected' : ''}>GPT-4 Turbo</option>
+                            <option value="gpt-3.5-turbo" ${appConfig.openaiModel === 'gpt-3.5-turbo' ? 'selected' : ''}>GPT-3.5 Turbo</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Assistant ID (Opzionale)</label>
+                        <input type="text" id="assistantIdInput" class="form-input" 
+                               placeholder="asst_..." value="${appConfig.assistantId || ''}">
+                    </div>
+                    
+                    <div style="margin-top: 30px;">
+                        <label style="display: flex; align-items: center; margin-bottom: 10px;">
+                            <input type="checkbox" id="autoProcessDocs" 
+                                   ${appConfig.automation.autoProcessDocuments ? 'checked' : ''}
+                                   style="margin-right: 8px;">
+                            Processa automaticamente i documenti
+                        </label>
+                        
+                        <label style="display: flex; align-items: center;">
+                            <input type="checkbox" id="autoReplyMessages" 
+                                   ${appConfig.automation.autoReplyMessages ? 'checked' : ''}
+                                   style="margin-right: 8px;">
+                            Rispondi automaticamente ai messaggi
+                        </label>
+                    </div>
+                    
+                    <div style="margin-top: 30px; display: flex; gap: 10px;">
+                        <button class="button-primary" onclick="saveSettings(this.parentElement.parentElement.parentElement)">
+                            Salva
+                        </button>
+                        <button class="button-primary" style="background: #86868b;" 
+                                onclick="this.parentElement.parentElement.parentElement.remove()">
+                            Annulla
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        function saveSettings(modal) {
+            appConfig.openaiApiKey = document.getElementById('apiKeyInput').value;
+            appConfig.openaiModel = document.getElementById('modelSelect').value;
+            appConfig.assistantId = document.getElementById('assistantIdInput').value;
+            appConfig.automation.autoProcessDocuments = document.getElementById('autoProcessDocs').checked;
+            appConfig.automation.autoReplyMessages = document.getElementById('autoReplyMessages').checked;
+            
+            saveConfig();
+            modal.remove();
+            
+            if (appConfig.openaiApiKey) {
+                addMessage("✅ Configurazione salvata! Ora puoi utilizzare l'AI Agent.");
+            }
+        }
+
+        // Add settings button to sidebar
+        const sidebar = document.querySelector('.sidebar nav');
+        const settingsButton = document.createElement('a');
+        settingsButton.href = '#';
+        settingsButton.className = 'nav-item';
+        settingsButton.style.marginTop = 'auto';
+        settingsButton.innerHTML = `
+            <div class="nav-icon">⚙️</div>
+            <span>Impostazioni</span>
+        `;
+        settingsButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            showSettingsModal();
+        });
+        sidebar.appendChild(settingsButton);
+
+        // Expense form
+        const expenseForm = document.getElementById('expenseForm');
+        if (expenseForm) {
+            expenseForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert('Spesa aggiunta con successo!');
+                expenseForm.reset();
+            });
+        }
+
+        // Check for automation tasks periodically
+        if (appConfig.automation.autoProcessDocuments || appConfig.automation.autoReplyMessages) {
+            setInterval(() => {
+                // This would check for new documents or messages
+                console.log('Checking for automation tasks...');
+            }, 30000); // Check every 30 seconds
+        }
+
+        // PropertyFinder functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const startSearchButton = document.getElementById('startSearchButton');
+            const searchStatus = document.getElementById('searchStatus');
+            const scheduleTime = document.getElementById('scheduleTime');
+            const enableSchedule = document.getElementById('enableSchedule');
+            const saveScheduleButton = document.getElementById('saveScheduleButton');
+            const reportsList = document.getElementById('reportsList');
+
+            // Carica configurazione salvata
+            const savedConfig = localStorage.getItem('propertyFinderConfig');
+            if (savedConfig) {
+                const config = JSON.parse(savedConfig);
+                scheduleTime.value = config.scheduleTime || '09:00';
+                enableSchedule.checked = config.enabled || false;
+            }
+
+            // Gestione ricerca manuale
+            startSearchButton.addEventListener('click', async () => {
+                try {
+                    startSearchButton.disabled = true;
+                    searchStatus.style.display = 'block';
+                    
+                    const result = await window.electronAPI.executePropertySearch();
+                    
+                    if (result.success) {
+                        searchStatus.innerHTML = `
+                            <div class="status-badge success">
+                                Ricerca completata! Trovate ${result.propertiesCount} proprietà
+                            </div>
+                        `;
+                        loadReports(); // Aggiorna lista report
+                    } else {
+                        searchStatus.innerHTML = `
+                            <div class="status-badge error">
+                                Errore: ${result.error}
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    searchStatus.innerHTML = `
+                        <div class="status-badge error">
+                            Errore durante la ricerca
+                        </div>
+                    `;
+                    console.error('Search error:', error);
+                } finally {
+                    startSearchButton.disabled = false;
+                    setTimeout(() => {
+                        searchStatus.style.display = 'none';
+                    }, 5000);
+                }
+            });
+
+            // Salva configurazione scheduler
+            saveScheduleButton.addEventListener('click', async () => {
+                const config = {
+                    scheduleTime: scheduleTime.value,
+                    enabled: enableSchedule.checked
+                };
+                
+                localStorage.setItem('propertyFinderConfig', JSON.stringify(config));
+                
+                try {
+                    await window.electronAPI.updateScheduleConfig(config);
+                    alert('Configurazione salvata con successo!');
+                } catch (error) {
+                    console.error('Config save error:', error);
+                    alert('Errore nel salvataggio della configurazione');
+                }
+            });
+
+            // Carica lista report
+            async function loadReports() {
+                try {
+                    const reports = await window.electronAPI.getPropertyReports();
+                    reportsList.innerHTML = reports.map(report => `
+                        <div class="report-item">
+                            <div class="report-info">
+                                <div>Dubai Marina Properties</div>
+                                <div class="report-date">${report.date}</div>
+                            </div>
+                            <button class="download-button" onclick="downloadReport('${report.path}')">
+                                Scarica Excel
+                            </button>
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    console.error('Error loading reports:', error);
+                    reportsList.innerHTML = '<div class="error-message">Errore nel caricamento dei report</div>';
+                }
+            }
+
+            // Funzione per download report
+            window.downloadReport = async (path) => {
+                try {
+                    await window.electronAPI.openFile(path);
+                } catch (error) {
+                    console.error('Download error:', error);
+                    alert('Errore durante l\'apertura del file');
+                }
+            };
+
+            // Carica report all'avvio
+            loadReports();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+REQUIREMENTS - APP CHAT OPENAI PER MAC
+================================================================================
+
+PROGETTO: Web App Chat con integrazione OpenAI da convertire in App Desktop Mac
+FRAMEWORK: [Specifica il tuo: React/Next.js/Vue/etc.]
+STATO ATTUALE: Chat UI funzionante ma con logica mock/demo
+
+================================================================================
+1. FUNZIONALITÀ DA IMPLEMENTARE
+================================================================================
+
+1.1 INTEGRAZIONE OPENAI API
+---------------------------
+□ Creare endpoint backend `/api/chat` per gestire richieste OpenAI
+□ Implementare autenticazione sicura con API key (variabile ambiente)
+□ Gestire conversazione con context/history completo
+□ Implementare streaming delle risposte (typing effect real-time)
+□ Aggiungere supporto per diversi modelli OpenAI (GPT-4, GPT-3.5-turbo)
+□ Limite caratteri/token per messaggio (configurabile)
+
+1.2 GESTIONE CONVERSAZIONI
+--------------------------
+□ Sistema di salvataggio conversazioni in locale (localStorage/IndexedDB)
+□ Lista conversazioni salvate nella sidebar
+□ Funzione di ricerca nelle conversazioni passate
+□ Export conversazioni (PDF, TXT, JSON)
+□ Import conversazioni precedenti
+□ Titolo automatico conversazione basato sul primo messaggio
+
+1.3 FEATURES AVANZATE CHAT
+--------------------------
+□ Supporto markdown nei messaggi (code blocks, liste, tabelle)
+□ Syntax highlighting per codice
+□ Copia messaggio con un click
+□ Modifica ultimo messaggio inviato
+□ Rigenerazione ultima risposta AI
+□ Stop generazione risposta in corso
+□ Contatore token utilizzati/rimanenti
+
+1.4 GESTIONE UTENTE
+-------------------
+□ Sistema di API key personale (input sicuro)
+□ Validazione API key all'inserimento
+□ Storage sicuro API key (encrypted)
+□ Statistiche utilizzo (messaggi inviati, token usati)
+□ Limite giornaliero/mensile configurabile
+
+================================================================================
+2. BUG DA FIXARE
+================================================================================
+
+2.1 PROBLEMI UI/UX
+------------------
+□ Chat scroll non va automaticamente all'ultimo messaggio
+□ Input field perde focus dopo invio messaggio
+□ Messaggi lunghi non hanno word-wrap corretto
+□ Bottone invio non disabilitato durante caricamento
+□ Dark mode non persiste dopo refresh
+□ Animazioni chat troppo lente/assenti
+□ Layout si rompe su schermi piccoli (mobile)
+
+2.2 PROBLEMI FUNZIONALI
+-----------------------
+□ Rimuovere TUTTA la logica mock/demo esistente
+□ Gestione errori network inesistente
+□ Nessun feedback quando API non risponde
+□ Memory leak con conversazioni lunghe
+□ State management confuso/duplicato
+□ Copy/paste non funziona correttamente nel code
+
+2.3 PROBLEMI PERFORMANCE
+------------------------
+□ Re-render eccessivi della lista messaggi
+□ Nessun lazy loading per conversazioni lunghe
+□ Bundle size troppo grande
+□ Immagini/assets non ottimizzati
+□ Nessun caching delle risposte
+
+================================================================================
+3. INTEGRAZIONI API NECESSARIE
+================================================================================
+
+3.1 OPENAI API
+--------------
+Endpoint richiesti:
+- POST https://api.openai.com/v1/chat/completions
+- GET https://api.openai.com/v1/models (per lista modelli)
+
+Headers necessari:
+- Authorization: Bearer YOUR_API_KEY
+- Content-Type: application/json
+
+Gestione errori:
+- 401: Invalid API key
+- 429: Rate limit exceeded  
+- 500: Server error
+- Timeout dopo 30 secondi
+
+3.2 BACKEND REQUIREMENTS
+------------------------
+□ Framework backend (Express.js/Fastify per Node o FastAPI per Python)
+□ Middleware CORS configurato correttamente
+□ Rate limiting per prevenire abusi (10 req/min per IP)
+□ Request validation (Joi/Zod)
+□ Error handling centralizzato
+□ Logging delle richieste
+□ Health check endpoint
+
+3.3 FUTURE INTEGRATIONS (OPZIONALE)
+-----------------------------------
+□ Supporto per Claude API (Anthropic)
+□ Google Gemini API
+□ Local LLMs (Ollama integration)
+□ Voice input/output (Web Speech API)
+□ Image generation (DALL-E API)
+
+================================================================================
+4. UI/UX IMPROVEMENTS
+================================================================================
+
+4.1 DESIGN SYSTEM
+-----------------
+□ Implementare design system coerente (colori, spacing, typography)
+□ Componenti riutilizzabili (Button, Input, Card, Modal)
+□ Animazioni fluide per stati di transizione
+□ Micro-interazioni (hover effects, click feedback)
+□ Loading states consistenti
+□ Empty states significativi
+
+4.2 LAYOUT IMPROVEMENTS
+-----------------------
+□ Sidebar collassabile per più spazio chat
+□ Resizable panels (sidebar/chat area)
+□ Header con azioni rapide sempre visibile
+□ Footer con shortcuts e info
+□ Modal settings ben organizzato
+□ Responsive breakpoints (mobile, tablet, desktop)
+
+4.3 CHAT INTERFACE
+------------------
+□ Avatars distintivi per user/AI
+□ Timestamp su ogni messaggio
+□ Indicatore "AI sta scrivendo..." animato
+□ Raggruppamento messaggi consecutivi stesso autore
+□ Reazioni rapide ai messaggi (like, copy, share)
+□ Evidenziazione sintassi per code blocks
+□ Preview link automatico
+□ Supporto emoji picker
+
+4.4 ACCESSIBILITY
+-----------------
+□ Keyboard navigation completa
+□ Screen reader support
+□ High contrast mode
+□ Font size adjustment
+□ Focus indicators chiari
+□ ARIA labels appropriati
+□ Reduced motion option
+
+4.5 DESKTOP APP SPECIFIC
+------------------------
+□ Native window controls
+□ Dock/taskbar integration
+□ System tray support
+□ Global shortcuts (Cmd+N new chat)
+□ Native menus
+□ Drag & drop file support
+□ OS-specific styling (macOS vibrancy)
+
+================================================================================
+5. PRIORITÀ IMPLEMENTAZIONE
+================================================================================
+
+ALTA PRIORITÀ (Essenziali):
+1. Integrazione OpenAI API funzionante
+2. Fix scroll e focus issues
+3. Gestione errori base
+4. Storage conversazioni
+5. Dark mode persistente
+
+MEDIA PRIORITÀ (Important):
+1. Streaming risposte
+2. Markdown support
+3. Export conversazioni
+4. Rate limiting
+5. Animazioni chat
+
+BASSA PRIORITÀ (Nice to have):
+1. Multi-model support
+2. Voice input
+3. Advanced statistics
+4. Temi personalizzabili
+5. Plugin system
+
+================================================================================
+6. TECH STACK CONSIGLIATO
+================================================================================
+
+Frontend:
+- React 18+ con TypeScript
+- Tailwind CSS per styling
+- Zustand/Redux per state management
+- React Query per API calls
+- Framer Motion per animazioni
+
+Backend:
+- Node.js + Express/Fastify
+- Rate limiting: express-rate-limit
+- Validation: Zod
+- OpenAI SDK ufficiale
+
+Desktop:
+- Electron per Mac app
+- electron-builder per packaging
+- electron-store per storage sicuro
+
+================================================================================
+NOTE PER LOVABLE
+================================================================================
+
+Quando implementi in Lovable, usa questi prompt:
+
+1. "Implementa l'integrazione completa con OpenAI API seguendo il pattern di best practices, con gestione errori, rate limiting e streaming delle risposte"
+
+2. "Fix tutti i problemi di UX della chat: auto-scroll, focus management, e responsive design"
+
+3. "Aggiungi un sistema di storage conversazioni con lista nella sidebar e funzioni di ricerca"
+
+4. "Implementa supporto markdown completo con syntax highlighting per i code blocks"
+
+5. "Crea un design system moderno con dark mode, animazioni fluide e componenti accessibili"
